@@ -1,83 +1,72 @@
-Open a Terminal and paste the commands as below to create Policies , Things and Connections
+Here's the comprehensive list of commands to create policies, things, and connections with Eclipse Ditto, formatted for clarity:
 
-Policies
-This provides the access to the Things , like read and write options. Also with the same policy ID we can give access to number of Things we create.
+---
 
-command for setting up the policy ( Sample IP : 192.168.50.142 --- Use the IP of your System)
+### 1. **Create Policies**
 
-curl -X PUT 'http://192.168.50.142:8080/api/2/policies/my.test:policy' -u 'ditto:ditto' -H 'Content-Type: application/json' --data '{
-    "policyId": "my.test:policy",
-    "entries": {
-        "owner": {
-            "subjects": {
-                "nginx:ditto": {
-                    "type": "nginx basic auth user"
-                }
-            },
-            "resources": {
-                "thing:/": {
-                    "grant": ["READ", "WRITE"],
-                    "revoke": []
-                },
-                "policy:/": {
-                    "grant": ["READ", "WRITE"],
-                    "revoke": []
-                },
-                "message:/": {
-                    "grant": ["READ", "WRITE"],
-                    "revoke": []
-                }
-            }
-        },
-        "observer": {
-            "subjects": {
-                "ditto:observer": {
-                    "type": "observer user"
-                }
-            },
-            "resources": {
-                "thing:/features": {
-                    "grant": ["READ"],
-                    "revoke": []
-                },
-                "policy:/": {
-                    "grant": ["READ"],
-                    "revoke": []
-                },
-                "message:/": {
-                    "grant": ["READ"],
-                    "revoke": []
-                }
-            }
-        }
-    }
-}'
+This command sets up a policy for access to Things, allowing read and write options.
 
+**Command:**
+```bash
+curl -X PUT 'http://<your-ip>:8080/api/2/policies/my.test:policy' \
+     -u 'ditto:ditto' \
+     -H 'Content-Type: application/json' \
+     --data '{
+         "policyId": "my.test:policy",
+         "entries": {
+             "owner": {
+                 "subjects": {
+                     "nginx:ditto": {
+                         "type": "nginx basic auth user"
+                     }
+                 },
+                 "resources": {
+                     "thing:/": {
+                         "grant": ["READ", "WRITE"],
+                         "revoke": []
+                     },
+                     "policy:/": {
+                         "grant": ["READ", "WRITE"],
+                         "revoke": []
+                     },
+                     "message:/": {
+                         "grant": ["READ", "WRITE"],
+                         "revoke": []
+                     }
+                 }
+             },
+             "observer": {
+                 "subjects": {
+                     "ditto:observer": {
+                         "type": "observer user"
+                     }
+                 },
+                 "resources": {
+                     "thing:/features": {
+                         "grant": ["READ"],
+                         "revoke": []
+                     },
+                     "policy:/": {
+                         "grant": ["READ"],
+                         "revoke": []
+                     },
+                     "message:/": {
+                         "grant": ["READ"],
+                         "revoke": []
+                     }
+                 }
+             }
+         }
+     }'
+```
 
+---
 
-Create a Thing
+### 2. **Create Things**
 
-Definition
-A Thing may contain a definition. The definition can also be used to find Things. The definition is used to link a thing to a corresponding model defining the capabilities/features of it.
-The definition can for example point to a:
-					a valid HTTP(s) URL (e.g. in order to define that the Thing is described by a WoT (Web of Things) Thing Model)
-					or some other model reference using the syntax 
-					
-					<namespace>:<name>:<version>
-					
-				        ex -  org.eclipse.ditto:xdk_53
-					      foo:xdk_53
-					      org.eclipse.vorto_42:xdk_thing
-				        
-				        
-				        
-command:
-
-NOTE: use your System IP and the assigned Port number
-
-1. Things for Sensors for Feedback System
-
-curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.iff:sensor01' \
+**Feedback Sensors:**
+```bash
+curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor1.iff:sensor01' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -95,7 +84,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.iff:sensor01' \
                      "z": 456
                  }
              },
-             "gyroscope": {  
+             "gyroscope": {
                  "properties": {
                      "x": 45,
                      "y": 5,
@@ -105,7 +94,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.iff:sensor01' \
          }
      }'
 
-curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor2.iff:sensor02' \
+curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor2.iff:sensor02' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -123,7 +112,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor2.iff:sensor02' \
                      "z": 456
                  }
              },
-             "gyroscope": {  
+             "gyroscope": {
                  "properties": {
                      "x": 45,
                      "y": 5,
@@ -132,13 +121,11 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor2.iff:sensor02' \
              }
          }
      }'
+```
 
-
-2. Things for ALert 
-
-
-
-curl -X PUT 'http://192.168.50.142:8080/api/2/things/mys1.alert:sensor' \
+**Alert Sensors:**
+```bash
+curl -X PUT 'http://<your-ip>:8080/api/2/things/mys1.alert:sensor' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -157,7 +144,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/mys1.alert:sensor' \
          }
      }'
 
-curl -X PUT 'http://192.168.50.142:8080/api/2/things/mys2.alert:sensor' \
+curl -X PUT 'http://<your-ip>:8080/api/2/things/mys2.alert:sensor' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -175,12 +162,11 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/mys2.alert:sensor' \
              }
          }
      }'
-     
- 
-3. Things for Force Sensors
+```
 
-
-curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.fs:sensor01' \
+**Force Sensors:**
+```bash
+curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor1.fs:sensor01' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -198,7 +184,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.fs:sensor01' \
                      "z": 456
                  }
              },
-             "gyroscope": {  
+             "gyroscope": {
                  "properties": {
                      "x": 45,
                      "y": 5,
@@ -208,10 +194,7 @@ curl -X PUT 'http://192.168.50.142:8080/api/2/things/sensor1.fs:sensor01' \
          }
      }'
 
-
-
-
-curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor2.fs:sensor02' \
+curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor2.fs:sensor02' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -229,7 +212,7 @@ curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor2.fs:sensor02' \
                      "z": 456
                  }
              },
-             "gyroscope": {  
+             "gyroscope": {
                  "properties": {
                      "x": 45,
                      "y": 5,
@@ -238,11 +221,11 @@ curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor2.fs:sensor02' \
              }
          }
      }'
+```
 
-
-4. Thing for Pitch Angle
-
- curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor.pa:sensor' \
+**Pitch Angle Sensor:**
+```bash
+curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor.pa:sensor' \
      -u 'ditto:ditto' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -260,7 +243,7 @@ curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor2.fs:sensor02' \
                      "z": 456
                  }
              },
-             "gyroscope": {  
+             "gyroscope": {
                  "properties": {
                      "x": 45,
                      "y": 5,
@@ -269,218 +252,170 @@ curl -X PUT 'http://192.168.0.106:8080/api/2/things/sensor2.fs:sensor02' \
              }
          }
      }'
- 
+```
 
+---
 
+### 3. **Create Connections**
 
-
-Create a Connection between the things and Mosquitto Broker and Kafka 
-
-1.Establishing Conenction between Things and Mosquitto Broker for Publishing and subscribing
-
-
-Feedback Sensors
-
-sensor1---
-     
-curl -X POST "http://192.168.50.142:8080/devops/piggyback/connectivity?timeout=10"      -u 'devops:foobar'      -H 'Content-Type: application/json'      -d '{
-        "targetActorSelection": "/system/sharding/connection",
-        "headers": {
-            "aggregate": false
-        },
-        "piggybackCommand": {
-            "type": "connectivity.commands:createConnection",
-            "connection": {
-                "id": "mqtt-s1connection-source",
-                "connectionType": "mqtt",
-                "connectionStatus": "open",
-                "failoverEnabled": true,
-                "uri": "tcp://192.168.50.142:1885",
-                "sources": [{
-                    "addresses": ["sensor1.iff/#"],
-                    "authorizationContext": ["nginx:ditto"],
-                    "qos": 0,                    
-                    "filters": []
-                }],
-                "mappingContext": {
-                    "mappingEngine": "JavaScript",
-                    "options": {
+**Feedback Sensors:**
+```bash
+curl -X POST "http://<your-ip>:8080/devops/piggyback/connectivity?timeout=10" \
+     -u 'devops:foobar' \
+     -H 'Content-Type: application/json' \
+     -d '{
+         "targetActorSelection": "/system/sharding/connection",
+         "headers": {
+             "aggregate": false
+         },
+         "piggybackCommand": {
+             "type": "connectivity.commands:createConnection",
+             "connection": {
+                 "id": "mqtt-s1connection-source",
+                 "connectionType": "mqtt",
+                 "connectionStatus": "open",
+                 "failoverEnabled": true,
+                 "uri": "tcp://<your-ip>:1885",
+                 "sources": [{
+                     "addresses": ["sensor1.iff/#"],
+                     "authorizationContext": ["nginx:ditto"],
+                     "qos": 0,
+                     "filters": []
+                 }],
+                 "mappingContext": {
+                     "mappingEngine": "JavaScript",
+                     "options": {
                          "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { accelerometer: { properties: { x: jsonData.accx, y: jsonData.accy, z: jsonData.accz } }, gyroscope: { properties: { x: jsonData.gyrx, y: jsonData.gyry, z: jsonData.gyrz } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "loadBytebufferJS": false,
-        "loadLongJS": false                                                                                                                                                                                }                                                                                                                             
-                }                                   
-            }                                
-        }            
-    }'
+                         "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
+                         "loadByte
 
+ArrayFromBase64": false
+                     }
+                 }
+             }
+         }
+     }'
+```
 
-sensor2---
+**Alert Sensors:**
+```bash
+curl -X POST "http://<your-ip>:8080/devops/piggyback/connectivity?timeout=10" \
+     -u 'devops:foobar' \
+     -H 'Content-Type: application/json' \
+     -d '{
+         "targetActorSelection": "/system/sharding/connection",
+         "headers": {
+             "aggregate": false
+         },
+         "piggybackCommand": {
+             "type": "connectivity.commands:createConnection",
+             "connection": {
+                 "id": "mqtt-s2connection-source",
+                 "connectionType": "mqtt",
+                 "connectionStatus": "open",
+                 "failoverEnabled": true,
+                 "uri": "tcp://<your-ip>:1885",
+                 "sources": [{
+                     "addresses": ["mys1.alert/#"],
+                     "authorizationContext": ["nginx:ditto"],
+                     "qos": 0,
+                     "filters": []
+                 }],
+                 "mappingContext": {
+                     "mappingEngine": "JavaScript",
+                     "options": {
+                         "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { alert: { properties: { m: jsonData.alertM } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
+                         "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
+                         "loadByteArrayFromBase64": false
+                     }
+                 }
+             }
+         }
+     }'
+```
 
-
-curl -X POST "http://192.168.50.142:8080/devops/piggyback/connectivity?timeout=10"      -u 'devops:foobar'      -H 'Content-Type: application/json'      -d '{
-        "targetActorSelection": "/system/sharding/connection",
-        "headers": {
-            "aggregate": false
-        },
-        "piggybackCommand": {
-            "type": "connectivity.commands:createConnection",
-            "connection": {
-                "id": "mqtt-s2connection-source",
-                "connectionType": "mqtt",
-                "connectionStatus": "open",
-                "failoverEnabled": true,
-                "uri": "tcp://192.168.50.142:1888",
-                "sources": [{
-                    "addresses": ["sensor2.iff/#"],
-                    "authorizationContext": ["nginx:ditto"],
-                    "qos": 0,                    
-                    "filters": []
-                }],
-                "mappingContext": {
-                    "mappingEngine": "JavaScript",
-                    "options": {
-                        "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { accelerometer: { properties: { x: jsonData.accx, y: jsonData.accy, z: jsonData.accz } }, gyroscope: { properties: { x: jsonData.gyrx, y: jsonData.gyry, z: jsonData.gyrz } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "loadBytebufferJS": false,
-        "loadLongJS": false                                                                                                                                                                                 }                                                                                                                             
-                }                                   
-            }                                
-        }            
-    }'
-     
-     
-Force Sensors
-
-
-Sensor 1 ----
-
-
-curl -X POST "http://192.168.0.106:8080/devops/piggyback/connectivity?timeout=10"      -u 'devops:foobar'      -H 'Content-Type: application/json'      -d '{
-        "targetActorSelection": "/system/sharding/connection",
-        "headers": {
-            "aggregate": false
-        },
-        "piggybackCommand": {
-            "type": "connectivity.commands:createConnection",
-            "connection": {
-                "id": "mqtt-f1connection-source",
-                "connectionType": "mqtt",
-                "connectionStatus": "open",
-                "failoverEnabled": true,
-                "uri": "tcp://192.168.0.106:1887",
-                "sources": [{
-                    "addresses": ["sensor1.fs/#"],
-                    "authorizationContext": ["nginx:ditto"],
-                    "qos": 0,                    
-                    "filters": []
-                }],
-                "mappingContext": {
-                    "mappingEngine": "JavaScript",
-                    "options": {
+**Force Sensors:**
+```bash
+curl -X POST "http://<your-ip>:8080/devops/piggyback/connectivity?timeout=10" \
+     -u 'devops:foobar' \
+     -H 'Content-Type: application/json' \
+     -d '{
+         "targetActorSelection": "/system/sharding/connection",
+         "headers": {
+             "aggregate": false
+         },
+         "piggybackCommand": {
+             "type": "connectivity.commands:createConnection",
+             "connection": {
+                 "id": "mqtt-s1fsconnection-source",
+                 "connectionType": "mqtt",
+                 "connectionStatus": "open",
+                 "failoverEnabled": true,
+                 "uri": "tcp://<your-ip>:1885",
+                 "sources": [{
+                     "addresses": ["sensor1.fs/#"],
+                     "authorizationContext": ["nginx:ditto"],
+                     "qos": 0,
+                     "filters": []
+                 }],
+                 "mappingContext": {
+                     "mappingEngine": "JavaScript",
+                     "options": {
                          "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { accelerometer: { properties: { x: jsonData.accx, y: jsonData.accy, z: jsonData.accz } }, gyroscope: { properties: { x: jsonData.gyrx, y: jsonData.gyry, z: jsonData.gyrz } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "loadBytebufferJS": false,
-        "loadLongJS": false                                                                                                                                                                                }                                                                                                                             
-                }                                   
-            }                                
-        }            
-    }'
+                         "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
+                         "loadByteArrayFromBase64": false
+                     }
+                 }
+             }
+         }
+     }'
+```
 
-
-
-Sensor 2 -------
-
-
-
-curl -X POST "http://192.168.0.106:8080/devops/piggyback/connectivity?timeout=10"      -u 'devops:foobar'      -H 'Content-Type: application/json'      -d '{
-        "targetActorSelection": "/system/sharding/connection",
-        "headers": {
-            "aggregate": false
-        },
-        "piggybackCommand": {
-            "type": "connectivity.commands:createConnection",
-            "connection": {
-                "id": "mqtt-f2connection-source",
-                "connectionType": "mqtt",
-                "connectionStatus": "open",
-                "failoverEnabled": true,
-                "uri": "tcp://192.168.0.106:1889",
-                "sources": [{
-                    "addresses": ["sensor2.fs/#"],
-                    "authorizationContext": ["nginx:ditto"],
-                    "qos": 0,                    
-                    "filters": []
-                }],
-                "mappingContext": {
-                    "mappingEngine": "JavaScript",
-                    "options": {
+**Pitch Angle Sensor:**
+```bash
+curl -X POST "http://<your-ip>:8080/devops/piggyback/connectivity?timeout=10" \
+     -u 'devops:foobar' \
+     -H 'Content-Type: application/json' \
+     -d '{
+         "targetActorSelection": "/system/sharding/connection",
+         "headers": {
+             "aggregate": false
+         },
+         "piggybackCommand": {
+             "type": "connectivity.commands:createConnection",
+             "connection": {
+                 "id": "mqtt-s1pa-connection-source",
+                 "connectionType": "mqtt",
+                 "connectionStatus": "open",
+                 "failoverEnabled": true,
+                 "uri": "tcp://<your-ip>:1885",
+                 "sources": [{
+                     "addresses": ["sensor.pa/#"],
+                     "authorizationContext": ["nginx:ditto"],
+                     "qos": 0,
+                     "filters": []
+                 }],
+                 "mappingContext": {
+                     "mappingEngine": "JavaScript",
+                     "options": {
                          "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { accelerometer: { properties: { x: jsonData.accx, y: jsonData.accy, z: jsonData.accz } }, gyroscope: { properties: { x: jsonData.gyrx, y: jsonData.gyry, z: jsonData.gyrz } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "loadBytebufferJS": false,
-        "loadLongJS": false                                                                                                                                                                                }                                                                                                                             
-                }                                   
-            }                                
-        }            
-    }'
+                         "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
+                         "loadByteArrayFromBase64": false
+                     }
+                 }
+             }
+         }
+     }'
+```
 
+---
 
-Ptch angle Sensor
+**Establishing Connection Between Things and Kafka**
 
+Before creating the connection, ensure you create a Kafka topic to subscribe from the Things. This topic should be created as `"sensor"`, which will provide values for all the Things.
 
-curl -X POST "http://192.168.0.106:8080/devops/piggyback/connectivity?timeout=10"      -u 'devops:foobar'      -H 'Content-Type: application/json'      -d '{
-        "targetActorSelection": "/system/sharding/connection",
-        "headers": {
-            "aggregate": false
-        },
-        "piggybackCommand": {
-            "type": "connectivity.commands:createConnection",
-            "connection": {
-                "id": "mqtt-paconnection-source",
-                "connectionType": "mqtt",
-                "connectionStatus": "open",
-                "failoverEnabled": true,
-                "uri": "tcp://192.168.0.106:1885",
-                "sources": [{
-                    "addresses": ["sensor.pa/#"],
-                    "authorizationContext": ["nginx:ditto"],
-                    "qos": 0,                    
-                    "filters": []
-                }],
-                "mappingContext": {
-                    "mappingEngine": "JavaScript",
-                    "options": {
-                         "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { accelerometer: { properties: { x: jsonData.accx, y: jsonData.accy, z: jsonData.accz } }, gyroscope: { properties: { x: jsonData.gyrx, y: jsonData.gyry, z: jsonData.gyrz } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "loadBytebufferJS": false,
-        "loadLongJS": false                                                                                                                                                                                }                                                                                                                             
-                }                                   
-            }                                
-        }            
-    }'
-
-
-
-
-
-
-
-Establishing connection between Things and Kafka
-
-Before creating the connection make you create a Kafka topic to subscribe fromt the Things, so we can see in the Third command below under under Targets 														
-
-(***	"targets": [{
-                "address": "sensor/{{ thing:id }}",
-****)
-
-
-the kafka topic created as "sensor" and it gives us the values of all the things !
-
-NOTE: Make sure Kafka broker on your System is working 
-
-Sensor 1-  Modifying the Things mys1.alert through kafka
-
-
+**Sensor 1 - Modifying the Things `mys1.alert` through Kafka:**
+```bash
 curl -i -X POST -u devops:foobar \
      -H 'Content-Type: application/json' \
      -d '{
@@ -534,23 +469,23 @@ curl -i -X POST -u devops:foobar \
                         "mappingEngine": "JavaScript",
                         "options": {
                            "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { alert: { properties: { m: jsonData.m } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-                        "loadBytebufferJS": "false",
-                        "loadLongJS": "false"
+                           "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { alert: { properties: { m: jsonData.m } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
+                           "loadBytebufferJS": "false",
+                           "loadLongJS": "false"
                         }
                     }
                 }
             }
         }
     }' http://192.168.50.142:8080/devops/piggyback/connectivity
+```
 
-
-
-Sensor 2 - Modifying the Things mys2.alert through kafka
-
-
+**Sensor 2 - Modifying the Things `mys2.alert` through Kafka:**
+```bash
 curl -i -X POST -u devops:foobar \
-     -H 'Content-Type: application/json' \
+     -H 'Content-Type
+
+: application/json' \
      -d '{
         "targetActorSelection": "/system/sharding/connection",
         "headers": {
@@ -602,19 +537,19 @@ curl -i -X POST -u devops:foobar \
                         "mappingEngine": "JavaScript",
                         "options": {
                             "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { return null; }",
-        "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { alert: { properties: { m: jsonData.m } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
-                        "loadBytebufferJS": "false",
-                        "loadLongJS": "false"
+                            "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) { const jsonString = String.fromCharCode.apply(null, new Uint8Array(bytePayload)); const jsonData = JSON.parse(jsonString); const thingId = jsonData.thingId.split(\":\"); const value = { alert: { properties: { m: jsonData.m } } }; return Ditto.buildDittoProtocolMsg(thingId[0], thingId[1], \"things\", \"twin\", \"commands\", \"modify\", \"/features\", headers, value); }",
+                            "loadBytebufferJS": "false",
+                            "loadLongJS": "false"
                         }
                     }
                 }
             }
         }
     }' http://192.168.50.142:8080/devops/piggyback/connectivity
+```
 
-
-Subscribing from the Things through Kafka
-
+**Subscribing from the Things through Kafka:**
+```bash
 curl -i -X POST "http://192.168.50.142:8080/devops/piggyback/connectivity?timeout=10" \
      -u devops:foobar \
      -H 'Content-Type: application/json' \
@@ -652,17 +587,26 @@ curl -i -X POST "http://192.168.50.142:8080/devops/piggyback/connectivity?timeou
                 "mappingEngine": "JavaScript",
                 "options": {
                     "incomingScript": "function mapToDittoProtocolMsg(headers, textPayload, bytePayload, contentType) {return null;}",
-                        "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { let textPayload = \"{\\\"accx\\\": \" + value.accelerometer.properties.x + \", \\\"accy\\\": \" + value.accelerometer.properties.y + \", \\\"accz\\\": \" + value.accelerometer.properties.z + \", \\\"gyrx\\\": \" + value.gyroscope.properties.x + \", \\\"gyry\\\": \" + value.gyroscope.properties.y + \", \\\"gyrz\\\": \" + value.gyroscope.properties.z + \", \\\"thingId\\\": \\\"\" + namespace + \":\" + id + \"\\\"}\"; let bytePayload = null; let contentType = \"text/plain; charset=UTF-8\"; return Ditto.buildExternalMsg(dittoHeaders, textPayload, bytePayload, contentType); }",
-                        "loadBytebufferJS": "false",
-                        "loadLongJS": "false"
-                    }
+                    "outgoingScript": "function mapFromDittoProtocolMsg(namespace, id, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { let textPayload = \"{\\\"accx\\\": \" + value.accelerometer.properties.x + \", \\\"accy\\\": \" + value.accelerometer.properties.y + \", \\\"accz\\\": \" + value.accelerometer.properties.z + \", \\\"gyrx\\\": \" + value.gyroscope.properties.x + \", \\\"gyry\\\": \" + value.gyroscope.properties.y + \", \\\"gyrz\\\": \" + value.gyroscope.properties.z + \", \\\"thingId\\\": \\\"\" + namespace + \":\" + id + \"\\\"}\"; let bytePayload = null; let contentType = \"text/plain; charset=UTF-8\"; return Ditto.buildExternalMsg(dittoHeaders, textPayload, bytePayload, contentType); }",
+                    "loadBytebufferJS": "false",
+                    "loadLongJS": "false"
                 }
             }
         }
     }'
+```
+
+**Post-Setup Verification:**
+Once all connections are created and established, refresh the connection page to verify that:
+- Under "Live Status," it shows "open."
+- Under "Recovery Status," it shows "succeeded."
+
+This confirms that the connection is successful and the Things are now connected with the Brokers.
+
+---
 
 
 
-so once all this is created and the connections is established just refresh the connection page to see under live status "open" and under recovery status "succeeded"
 
-this means the connection is successfull and the now the Things are connected with the Brokers
+
+
