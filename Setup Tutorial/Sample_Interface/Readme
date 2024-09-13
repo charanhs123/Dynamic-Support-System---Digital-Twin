@@ -1,0 +1,11 @@
+
+Use this Interface to sample interface to create THings and Policies 
+
+Requirements
+
+1. Running Ditto image - The steps can be seen in Tutorial Folder in Ditto & BaSyx setup 
+			 URead the First section for deploying Ditto
+			 
+2. Change the URL in the HTML page according to the IP and Port number on your sytem and open the page and start creating the Ditto Elements
+
+

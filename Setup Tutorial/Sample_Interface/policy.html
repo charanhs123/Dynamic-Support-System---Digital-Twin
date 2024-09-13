@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ditto Thing Creator</title>
+    <style>
+        .status-indicator {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-top: 10px;
+        }
+        .success {
+            background-color: green;
+        }
+        .error {
+            background-color: red;
+        }
+        #thing-details {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Ditto Thing</h1>
+    <form id="thing-form">
+        <label for="thingId">Thing ID:</label>
+        <input type="text" id="thingId" name="thingId" placeholder="e.g., sensor1.iff:sensor01" required><br>
+
+        <label for="policyId">Policy ID:</label>
+        <input type="text" id="policyId" name="policyId" placeholder="e.g., my.test:policy" required><br>
+
+        <fieldset id="attributes-section">
+            <legend>Attributes:</legend>
+            <div id="attributes-container">
+                <div>
+                    <label for="attribute-name-1">Name:</label>
+                    <input type="text" id="attribute-name-1" placeholder="e.g., Accelerometer" required>
+                    <label for="attribute-value-1">Value:</label>
+                    <input type="text" id="attribute-value-1" placeholder="e.g., M5core 2" required>
+                </div>
+            </div>
+            <button type="button" onclick="addAttribute()">Add Another Attribute</button>
+        </fieldset><br>
+
+        <fieldset id="features-section">
+            <legend>Features:</legend>
+            <div id="features-container">
+                <div>
+                    <label for="feature-name-1">Feature Name:</label>
+                    <input type="text" id="feature-name-1" placeholder="e.g., accelerometer" required>
+                    <label for="feature-properties-1">Properties (JSON format):</label><br>
+                    <textarea id="feature-properties-1" rows="4" cols="50" placeholder='{"x": 5896, "y": 456, "z": 456}' required></textarea>
+                </div>
+            </div>
+            <button type="button" onclick="addFeature()">Add Another Feature</button>
+        </fieldset><br>
+
+        <button type="submit">Create Thing</button>
+    </form>
+
+    <div id="status-message"></div>
+    <div id="status-indicator" class="status-indicator"></div>
+    
+    <!-- Section to view details of an existing thing -->
+    <div id="thing-details">
+        <h2>View Thing</h2>
+        <label for="viewThingId">Thing ID:</label>
+        <input type="text" id="viewThingId" placeholder="e.g., sensor1.iff:sensor01">
+        <button type="button" onclick="viewThing()">View Thing</button>
+        <div id="thing-info"></div>
+    </div>
+
+    <script>
+        let attributeCount = 1;
+        let featureCount = 1;
+
+        function addAttribute() {
+            attributeCount++;
+            const container = document.getElementById('attributes-container');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label for="attribute-name-${attributeCount}">Name:</label>
+                <input type="text" id="attribute-name-${attributeCount}" placeholder="e.g., Accelerometer" required>
+                <label for="attribute-value-${attributeCount}">Value:</label>
+                <input type="text" id="attribute-value-${attributeCount}" placeholder="e.g., M5core 2" required>
+            `;
+            container.appendChild(div);
+        }
+
+        function addFeature() {
+            featureCount++;
+            const container = document.getElementById('features-container');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label for="feature-name-${featureCount}">Feature Name:</label>
+                <input type="text" id="feature-name-${featureCount}" placeholder="e.g., accelerometer" required>
+                <label for="feature-properties-${featureCount}">Properties (JSON format):</label><br>
+                <textarea id="feature-properties-${featureCount}" rows="4" cols="50" placeholder='{"x": 5896, "y": 456, "z": 456}' required></textarea>
+            `;
+            container.appendChild(div);
+        }
+
+        async function viewThing() {
+            const thingId = document.getElementById('viewThingId').value;
+            const dittoUrl = 'http://192.168.0.106:8080'; // Update this if your Ditto URL changes
+
+            const thingInfo = document.getElementById('thing-info');
+            thingInfo.textContent = '';
+
+            try {
+                const response = await fetch(`${dittoUrl}/api/2/things/${thingId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    thingInfo.textContent = JSON.stringify(data, null, 2);
+                } else if (response.status === 404) {
+                    thingInfo.textContent = `Thing "${thingId}" not found.`;
+                } else {
+                    throw new Error('Failed to fetch thing');
+                }
+            } catch (error) {
+                console.error('Error fetching thing:', error);
+                thingInfo.textContent = `Error fetching thing: ${error.message}`;
+            }
+        }
+
+        document.getElementById('thing-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            // Get the values from the form
+            const thingId = document.getElementById('thingId').value;
+            const policyId = document.getElementById('policyId').value;
+
+            // Collect attributes
+            const attributes = {};
+            for (let i = 1; i <= attributeCount; i++) {
+                const name = document.getElementById(`attribute-name-${i}`)?.value;
+                const value = document.getElementById(`attribute-value-${i}`)?.value;
+                if (name && value) {
+                    attributes[name] = value;
+                }
+            }
+
+            // Collect features
+            const features = {};
+            for (let i = 1; i <= featureCount; i++) {
+                const featureName = document.getElementById(`feature-name-${i}`)?.value;
+                const featureProperties = document.getElementById(`feature-properties-${i}`)?.value;
+                if (featureName && featureProperties) {
+                    try {
+                        features[featureName] = JSON.parse(featureProperties);
+                    } catch (e) {
+                        console.error(`Invalid JSON for feature ${featureName}`);
+                    }
+                }
+            }
+
+            const dittoUrl = 'http://192.168.0.106:8080'; // Update this if your Ditto URL changes
+
+            // Reset status indicator
+            const statusIndicator = document.getElementById('status-indicator');
+            statusIndicator.style.display = 'none';
+            statusIndicator.className = 'status-indicator'; // Reset classes
+
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.textContent = '';
+
+            try {
+                // Check if the policy exists
+                const policyResponse = await fetch(`${dittoUrl}/api/2/policies/${policyId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                    }
+                });
+
+                if (!policyResponse.ok) {
+                    throw new Error('Policy does not exist or could not be fetched');
+                }
+
+                // Check if the thing already exists
+                const thingResponse = await fetch(`${dittoUrl}/api/2/things/${thingId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                    }
+                });
+
+                if (thingResponse.ok) {
+                    throw new Error('Thing ID already in use');
+                } else if (thingResponse.status !== 404) {
+                    throw new Error('Failed to check thing existence');
+                }
+
+                // Create the thing
+                const thingPayload = {
+                    policyId: policyId,
+                    attributes: attributes,
+                    features: features
+                };
+
+                const createResponse = await fetch(`${dittoUrl}/api/2/things/${thingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                    },
+                    body: JSON.stringify(thingPayload)
+                });
+
+                if (createResponse.ok) {
+                    // Show green light for success
+                    statusIndicator.style.display = 'block';
+                    statusIndicator.classList.add('success');
+                    statusMessage.textContent = `Thing "${thingId}" created successfully.`;
+                } else if (createResponse.status === 409) {
+                    // Conflict (Thing already exists)
+                    statusIndicator.style.display = 'block';
+                    statusIndicator.classList.add('error');
+                    statusMessage.textContent = `Thing "${thingId}" already exists.`;
+                } else {
+                    // Other errors
+                    throw new Error('Failed to create thing');
+                }
+            } catch (error) {
+                console.error('Error creating thing:', error);
+                // Show red light for failure
+                statusIndicator.style.display = 'block';
+                statusIndicator.classList.add('error');
+                statusMessage.textContent = `Error creating thing: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
+

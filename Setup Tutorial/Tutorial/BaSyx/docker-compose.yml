@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  aasRegistry:
+    image: eclipsebasyx/aas-registry:1.5.1
+    container_name: aasRegistry
+    ports:
+      - "8083:4000"
+    networks:
+      - basyx-network
+
+  aasServer:
+    image: eclipsebasyx/aas-server:1.5.1
+    container_name: aasServer
+    ports:
+      - "8082:4001"
+    networks:
+      - basyx-network
+
+  aasGui:
+    image: eclipsebasyx/aas-gui:v230703
+    container_name: aasGui
+    ports:
+      - "5000:3000"
+    networks:
+      - basyx-network
+
+networks:
+  basyx-network:
+    driver: bridge
