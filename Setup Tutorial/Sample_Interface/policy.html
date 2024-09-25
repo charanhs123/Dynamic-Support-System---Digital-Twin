@@ -6,7 +6,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ditto Thing Creator</title>
     <style>
-        .status-indicator {
+        /* Styles from your CSS */
+        body {
+            background: #2B2B2B;
+            font-family: 'Inter', sans-serif;
+            color: #000000;
+        }
+        h1 {
+            font-weight: 800;
+            font-size: 96px;
+            color: #FFFFFF;
+            text-align: center;
+            margin-top: 50px;
+        }
+        form {
+            background: #FFFFFF;
+            padding: 20px;
+            width: 60%;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+        label {
+            display: block;
+            font-weight: 800;
+            font-size: 32px;
+            margin-top: 15px;
+            color: #000000;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 20px;
+        }
+        fieldset {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        legend {
+            font-weight: 800;
+            font-size: 32px;
+        }
+        .attribute-container, .feature-container, .property-container {
+            margin-top: 10px;
+        }
+        button[type="button"], button[type="submit"] {
+            background: #775D5D;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #thing-details {
+            background: #FFFFFF;
+            padding: 20px;
+            width: 60%;
+            margin: 20px auto;
+            border-radius: 10px;
+            margin-top: 50px;
+        }
+        #status-indicator {
             display: none;
             width: 20px;
             height: 20px;
@@ -19,15 +82,12 @@
         .error {
             background-color: red;
         }
-        #thing-details {
+        #thing-info {
             margin-top: 20px;
-            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            background: #f4f4f4;
             padding: 10px;
-        }
-        .property-container, .attribute-container, .feature-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -35,10 +95,10 @@
     <h1>Create Ditto Thing</h1>
     <form id="thing-form">
         <label for="thingId">Thing ID:</label>
-        <input type="text" id="thingId" name="thingId" placeholder="e.g., sensor1.iff:sensor01" required><br>
+        <input type="text" id="thingId" name="thingId" placeholder="e.g., sensor1.iff:sensor01" required>
 
         <label for="policyId">Policy ID:</label>
-        <input type="text" id="policyId" name="policyId" placeholder="e.g., my.test:policy" required><br>
+        <input type="text" id="policyId" name="policyId" placeholder="e.g., my.test:policy" required>
 
         <fieldset id="attributes-section">
             <legend>Attributes:</legend>
@@ -52,7 +112,7 @@
                 </div>
             </div>
             <button type="button" onclick="addAttribute()">Add Another Attribute</button>
-        </fieldset><br>
+        </fieldset>
 
         <fieldset id="features-section">
             <legend>Features:</legend>
@@ -68,15 +128,11 @@
                 </div>
             </div>
             <button type="button" onclick="addFeature()">Add Another Feature</button>
-        </fieldset><br>
+        </fieldset>
 
         <button type="submit">Create Thing</button>
     </form>
 
-    <div id="status-message"></div>
-    <div id="status-indicator" class="status-indicator"></div>
-    
-    <!-- Section to view details of an existing thing -->
     <div id="thing-details">
         <h2>View Thing</h2>
         <label for="viewThingId">Thing ID:</label>
@@ -177,6 +233,12 @@
         document.getElementById('thing-form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
+            // Show loading indicator
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.textContent = 'Creating Thing...';
+            loadingIndicator.style.color = '#FFFFFF';
+            document.body.appendChild(loadingIndicator);
+
             // Get the values from the form
             const thingId = document.getElementById('thingId').value;
             const policyId = document.getElementById('policyId').value;
@@ -196,78 +258,49 @@
             for (let i = 1; i <= featureCount; i++) {
                 const featureName = document.getElementById(`feature-name-${i}`)?.value;
                 const properties = {};
-                const propertyContainers = document.getElementById(`properties-container-${i}`).getElementsByClassName('property-container');
-                for (const container of propertyContainers) {
-                    const variable = container.children[0].value;
-                    const value = container.children[1].value;
-                    if (variable && value) {
-                        properties[variable] = value;
+                document.querySelectorAll(`#properties-container-${i} .property-container`).forEach(propertyDiv => {
+                    const propertyName = propertyDiv.querySelector('input[type="text"]').value;
+                    const propertyValue = propertyDiv.querySelector('input[type="text"]:nth-child(2)').value;
+                    if (propertyName && propertyValue) {
+                        properties[propertyName] = propertyValue;
                     }
-                }
-                if (featureName && Object.keys(properties).length > 0) {
+                });
+                if (featureName) {
                     features[featureName] = { properties };
                 }
             }
 
+            // Create the Ditto Thing payload
+            const thingPayload = {
+                policyId,
+                attributes,
+                features
+            };
+
             const dittoUrl = 'http://192.168.0.106:8080'; // Update this if your Ditto URL changes
 
-            // Reset status indicator
-            const statusIndicator = document.getElementById('status-indicator');
-            statusIndicator.style.display = 'none';
-            statusIndicator.className = 'status-indicator'; // Reset classes
-
-            const statusMessage = document.getElementById('status-message');
-            statusMessage.textContent = '';
-
             try {
-                // Check if the policy exists
-                const policyResponse = await fetch(`${dittoUrl}/api/2/policies/${policyId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Basic ' + btoa('ditto:ditto')
-                    }
-                });
-
-                if (!policyResponse.ok) {
-                    throw new Error('Policy not found');
-                }
-
-                // Create the thing
-                const thingPayload = {
-                    policyId: policyId,
-                    attributes: attributes,
-                    features: features
-                };
-
-                const createResponse = await fetch(`${dittoUrl}/api/2/things/${thingId}`, {
+                const response = await fetch(`${dittoUrl}/api/2/things/${thingId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                        'Authorization': 'Basic ' + btoa('ditto:ditto'),
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(thingPayload)
                 });
 
-                if (createResponse.ok) {
-                    // Show green light for success
-                    statusIndicator.style.display = 'block';
-                    statusIndicator.classList.add('success');
-                    statusMessage.textContent = `Thing "${thingId}" created successfully.`;
-                } else if (createResponse.status === 409) {
-                    // Conflict (Thing already exists)
-                    statusIndicator.style.display = 'block';
-                    statusIndicator.classList.add('error');
-                    statusMessage.textContent = `Thing "${thingId}" already exists.`;
+                if (response.ok) {
+                    alert('Thing created successfully!');
+                    document.getElementById('thing-form').reset(); // Clear form fields
                 } else {
-                    // Other errors
-                    throw new Error('Failed to create thing');
+                    throw new Error(`Failed to create thing: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
                 console.error('Error creating thing:', error);
-                // Show red light for failure
-                statusIndicator.style.display = 'block';
-                statusIndicator.classList.add('error');
-                statusMessage.textContent = `Error creating thing: ${error.message}`;
+                alert('Error creating thing: ' + error.message);
+            } finally {
+                // Remove loading indicator
+                document.body.removeChild(loadingIndicator);
             }
         });
     </script>
