@@ -89,6 +89,13 @@
             padding: 10px;
             border-radius: 5px;
         }
+        #viewFeatureResponse {
+            white-space: pre-wrap;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -133,12 +140,24 @@
         <button type="submit">Create Thing</button>
     </form>
 
+    <!-- View Thing Details Section -->
     <div id="thing-details">
         <h2>View Thing</h2>
         <label for="viewThingId">Thing ID:</label>
         <input type="text" id="viewThingId" placeholder="e.g., sensor1.iff:sensor01">
         <button type="button" onclick="viewThing()">View Thing</button>
         <div id="thing-info"></div>
+    </div>
+
+    <!-- View Feature Property Value Section -->
+    <div id="thing-details">
+        <h2>View Feature Property Value</h2>
+        <label for="viewFeatureThingId">Thing ID:</label>
+        <input type="text" id="viewFeatureThingId" placeholder="e.g., sensor1.iff:sensor01">
+        <label for="viewFeatureId">Feature ID:</label>
+        <input type="text" id="viewFeatureId" placeholder="e.g., temperature">
+        <button type="button" onclick="viewPropertyValue()">View Property Value</button>
+        <div id="viewFeatureResponse"></div>
     </div>
 
     <script>
@@ -227,6 +246,36 @@
             } catch (error) {
                 console.error('Error fetching thing:', error);
                 thingInfo.textContent = `Error fetching thing: ${error.message}`;
+            }
+        }
+
+        async function viewPropertyValue() {
+            const thingId = document.getElementById('viewFeatureThingId').value;
+            const featureId = document.getElementById('viewFeatureId').value;
+            const dittoUrl = 'http://192.168.0.106:8080'; // Update this if your Ditto URL changes
+
+            const viewFeatureResponse = document.getElementById('viewFeatureResponse');
+            viewFeatureResponse.textContent = '';
+
+            try {
+                const response = await fetch(`${dittoUrl}/api/2/things/${thingId}/features/${featureId}/properties`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('ditto:ditto')
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    viewFeatureResponse.textContent = JSON.stringify(data, null, 2);
+                } else if (response.status === 404) {
+                    viewFeatureResponse.textContent = `Feature "${featureId}" not found for Thing "${thingId}".`;
+                } else {
+                    throw new Error('Failed to fetch feature properties');
+                }
+            } catch (error) {
+                console.error('Error fetching feature properties:', error);
+                viewFeatureResponse.textContent = `Error fetching properties: ${error.message}`;
             }
         }
 
