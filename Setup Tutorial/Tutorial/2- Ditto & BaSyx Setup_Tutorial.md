@@ -6,7 +6,7 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
 
 1. **Clone the Ditto Repository:**
    ```bash
-   git clone https://github.com/eclipse-ditto/ditto-examples.git
+   git clone https://github.com/eclipse-ditto/ditto.git
    ```
 
 2. **Navigate to the Docker-Compose Directory:**
