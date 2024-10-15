@@ -109,7 +109,7 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
          ]
        }
      }
-   }' "http://<ADD_System_IP>:8080/devops/piggyback/connectivity?timeout=10"
+   }' http://<ADD_System_IP>:8080/devops/piggyback/connectivity
    ```
 
    **Note:** Replace `<System_IP>` and `<PORT>` with your actual IP address and port number (e.g., `192.168.0.105`, `8082`).
@@ -155,7 +155,7 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
          ]
        }
      }
-   }' "http://192.168.50.142:8080/devops/piggyback/connectivity?timeout=10"
+   }' http://192.168.50.142:8080/devops/piggyback/connectivity
    ```
 
 4. **Access AASGui:**
