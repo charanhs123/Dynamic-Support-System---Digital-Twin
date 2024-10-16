@@ -22,6 +22,15 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
 4. **Access Ditto:**
    Open your web browser and go to `http://localhost:8080` or `http://<IP-address>:8080`.
 
+5. **Setting up IP when using Ditto on different Machine**
+   There is no need to change IP while using Ditto on the browser from the Host Ubuntu Desktop
+
+   However when Ubuntu Server is used , Ditto can be accessed from the Browser of other machines by changing the IP in Environment to the respective system IP address
+   
+
+   ![image](https://github.com/user-attachments/assets/edabc64e-e2f5-4409-b08c-e8aec877807a)
+
+
 ---
 
 ## Setting Up BaSyx
@@ -33,83 +42,83 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
    Run the following command to establish a connection between BaSyx and Ditto, enabling access and modification of Ditto Things and Policies:
    ```bash
    curl -X POST -u devops:foobar -H 'Content-Type: application/json' --data-binary '{
-     "targetActorSelection": "/system/sharding/connection",
-     "headers": {
-       "aggregate": false
-     },
-     "piggybackCommand": {
-       "type": "connectivity.commands:createConnection",
-       "connection": {
-         "id": "basyxserver-http-connection",
-         "connectionType": "http-push",
-         "connectionStatus": "open",
-         "uri": "http://<System_IP>:<PORT>",
-         "failoverEnabled": true,
-         "mappingDefinitions": {
-           "mappingforShell": {
-             "mappingEngine": "JavaScript",
-             "options": {
-               "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { ... }"
-             }
-           },
-           "mappingforSubmodel": {
-             "mappingEngine": "JavaScript",
-             "options": {
-               "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { ... }"
-             }
-           },
-           "mappingforSubmodelElement": {
-             "mappingEngine": "JavaScript",
-             "options": {
-               "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { ... }"
-             }
-           }
-         },
-         "sources": [],
-         "targets": [
-           {
-             "address": "PUT:/aasServer/shells/{{ thing:namespace }}",
-             "headerMapping": {
-               "content-type": "{{ header:content-type }}"
-             },
-             "authorizationContext": ["nginx:ditto"],
-             "topics": [
-               "_/_/things/twin/events?filter=and(in(topic:action,'created'),eq(resource:path,'/'))"
-             ],
-             "payloadMapping": [
-               "mappingforShell"
-             ]
-           },
-           {
-             "address": "PUT:/aasServer/shells/{{ thing:namespace }}/aas/submodels/{{ thing:name }}_{{ resource:path | fn:substring-after('/features/') }}",
-             "headerMapping": {
-               "content-type": "{{ header:content-type }}"
-             },
-             "authorizationContext": ["nginx:ditto"],
-             "topics": [
-               "_/_/things/twin/events?filter=and(in(topic:action,'created'),not(eq(resource:path,'/features')),like(resource:path,'/features*'),not(like(resource:path,'*properties*')))"
-             ],
-             "payloadMapping": [
-               "mappingforSubmodel"
-             ]
-           },
-           {
-             "address": "PUT:/aasServer/shells/{{ thing:namespace }}/aas/submodels/{{ thing:name }}_{{ resource:path | fn:substring-after('/features/') | fn:substring-before('/properties/') }}/submodel/submodelElements/properties_{{ resource:path | fn:substring-after('/properties/') | fn:replace('/', '_') }}",
-             "headerMapping": {
-               "content-type": "{{ header:content-type }}"
-             },
-             "authorizationContext": ["nginx:ditto"],
-             "topics": [
-               "_/_/things/twin/events?filter=and(in(topic:action,'modified'),not(eq(resource:path,'/features')),like(resource:path,'/features*'),like(resource:path,'*properties*'),not(like(resource:path,'*properties')))"
-             ],
-             "payloadMapping": [
-               "mappingforSubmodelElement"
-             ]
-           }
-         ]
-       }
-     }
-   }' http://<ADD_System_IP>:8080/devops/piggyback/connectivity
+    "targetActorSelection": "/system/sharding/connection",
+    "headers": {
+      "aggregate": false
+    },
+    "piggybackCommand": {
+      "type": "connectivity.commands:createConnection",
+      "connection": {
+        "id": "basyxserver-http-connection",
+        "connectionType": "http-push",
+        "connectionStatus": "open",
+        "uri": "htpp://<System IP:PORT.>",
+        "failoverEnabled": true,
+        "mappingDefinitions": {
+          "mappingforShell": {
+            "mappingEngine": "JavaScript",
+            "options": {
+              "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) {\n  let headers = dittoHeaders;\n  let textPayload = JSON.stringify({\n    conceptDictionary: [],\n    identification: {\n      idType: '"'Custom'"',\n      id: namespace\n    },\n    idShort: namespace,\n    dataSpecification: [],\n    modelType: {\n      name: '"'AssetAdministrationShell'"'\n    },\n    asset: {\n      identification: {\n        idType: '"'Custom'"',\n        id: namespace + '"'-asset'"'\n      },\n      idShort: namespace + '"'-asset'"',\n      kind: '"'Instance'"',\n      dataSpecification: [],\n      modelType: {\n        name: '"'Asset'"'\n      },\n      embeddedDataSpecifications: []\n    },\n    embeddedDataSpecifications: [],\n    views: [],\n    submodels: []\n  });\n  let bytePayload = null;\n  let contentType = '"'application/json'"';\n  return Ditto.buildExternalMsg(headers, textPayload, bytePayload, contentType);}"            
+            }
+          },
+          "mappingforSubmodel": {
+            "mappingEngine": "JavaScript",
+            "options": {
+                "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) {\n  \n  let feature_id = path.split('"'/'"').slice(2);\n  let headers = dittoHeaders;\n  let textPayload = JSON.stringify(\n    {\n      parent: {\n        keys: [\n          {\n            idType: '"'Custom'"',\n            type: '"'AssetAdministrationShell'"',\n            value: namespace,\n            local: true\n          }\n        ]\n      },\n      identification: {\n        idType: '"'Custom'"',\n        id: name+'"'_'"'+feature_id\n      },\n      idShort: name+'"'_'"'+feature_id,\n      kind: '"'Instance'"',\n      dataSpecification: [],\n      modelType: {\n        name: '"'Submodel'"'\n      },\n      embeddedDataSpecifications: [],\n      submodelElements: []\n    }\n\n  );\n  let bytePayload = null;\n  let contentType = '"'application/json'"';\n  return Ditto.buildExternalMsg(headers, textPayload, bytePayload, contentType);}"
+            }
+          },
+          "mappingforSubmodelElement": {
+            "mappingEngine": "JavaScript",
+            "options": {
+              "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) {\n  let property_id = path.split('"'/'"').slice(3).join('"'_'"');\n  let feature_id = path.split('"'/'"').slice(2,3);\n  let headers = dittoHeaders;\n  let dataType = typeof value;\n  dataType = mapDataType(dataType)\n\n  function mapDataType(dataType) {\n    switch (dataType) {\n        case '"'undefined'"':\n        return '"'Undefined'"';\n        case '"'boolean'"':\n        return '"'boolean'"';\n        case '"'number'"':\n        return '"'int'"';\n        case '"'string'"':\n        return '"'string'"';\n        case '"'symbol'"':\n        return '"'Symbol'"';\n        case '"'bigint'"':\n        return '"'BigInt'"';\n        case '"'object'"':\n        return '"'string'"';\n        case '"'function'"':\n        return '"'Function'"';\n        default:\n        return '"'Unknown'"';\n    }\n  }\n  let textPayload = JSON.stringify(\n  {\n    parent: {\n      keys: [\n        {\n          idType: '"'Custom'"',\n          type: '"'Submodel'"',\n          value: name+'"'_'"'+feature_id,\n          local: true\n        }\n      ]\n    },\n    idShort: property_id,\n    kind: '"'Instance'"',\n    valueType: dataType,\n    modelType: {\n      name: '"'Property'"'\n    },\n    value: value\n  }\n  );\n  let bytePayload = null;\n  let contentType = '"'application/json'"';\n  return Ditto.buildExternalMsg(headers, textPayload, bytePayload, contentType);}"
+            }
+          }
+        },
+        "sources": [],
+        "targets": [
+          {
+            "address": "PUT:/aasServer/shells/{{ thing:namespace }}",
+            "headerMapping": {
+              "content-type": "{{ header:content-type }}"
+            },
+            "authorizationContext": ["nginx:ditto"],
+            "topics": [
+              "_/_/things/twin/events?filter=and(in(topic:action,'"'created'"'),eq(resource:path,'"'/'"'))"
+            ],
+            "payloadMapping": [
+              "mappingforShell"
+            ]
+          },
+          {
+            "address": "PUT:/aasServer/shells/{{ thing:namespace }}/aas/submodels/{{ thing:name }}_{{ resource:path | fn:substring-after('"'/features/'"') }}",
+            "headerMapping": {
+              "content-type": "{{ header:content-type }}"
+            },
+            "authorizationContext": ["nginx:ditto"],
+            "topics": [
+              "_/_/things/twin/events?filter=and(in(topic:action,'"'created'"'),not(eq(resource:path,'"'/features'"')),like(resource:path,'"'/features*'"'),not(like(resource:path,'"'*properties*'"')))"
+            ],
+            "payloadMapping": [
+              "mappingforSubmodel"
+            ]
+          },
+          {
+            "address": "PUT:/aasServer/shells/{{ thing:namespace }}/aas/submodels/{{ thing:name }}_{{ resource:path | fn:substring-after('"'/features/'"') | fn:substring-before('"'/properties'"') }}/submodel/submodelElements/properties_{{ resource:path | fn:substring-after('"'/properties/'"') | fn:replace('"'/'"','"'_'"') }}",
+            "headerMapping": {
+              "content-type": "{{ header:content-type }}"
+            },
+            "authorizationContext": ["nginx:ditto"],
+            "topics": [
+              "_/_/things/twin/events?filter=and(in(topic:action,'"'modified'"'),not(eq(resource:path,'"'/features'"')),like(resource:path,'"'/features*'"'),like(resource:path,'"'*properties*'"'),not(like(resource:path,'"'*properties'"')))"
+            ],
+            "payloadMapping": [
+              "mappingforSubmodelElement"
+            ]
+          }
+        ]
+      }
+    }
+  }' htpp://<System IP:PORT.>/devops/piggyback/connectivity
    ```
 
    **Note:** Replace `<System_IP>` and `<PORT>` with your actual IP address and port number (e.g., `192.168.0.105`, `8082`).
@@ -117,45 +126,45 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
 3. **Create Connection Between AASRegistry and Ditto:**
    ```bash
    curl -X POST -u devops:foobar -H 'Content-Type: application/json' --data-binary '{
-     "targetActorSelection": "/system/sharding/connection",
-     "headers": {
-       "aggregate": false
-     },
-     "piggybackCommand": {
-       "type": "connectivity.commands:createConnection",
-       "connection": {
-         "id": "basyxregistry-http-connection",
-         "connectionType": "http-push",
-         "connectionStatus": "open",
-         "uri": "http://192.168.50.142:8083",
-         "failoverEnabled": true,
-         "mappingDefinitions": {
-           "mappingforShell": {
-             "mappingEngine": "JavaScript",
-             "options": {
-               "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) { ... }"
-             }
-           }
-         },
-         "sources": [],
-         "targets": [
-           {
-             "address": "PUT:/registry/api/v1/registry/{{ thing:namespace }}",
-             "headerMapping": {
-               "content-type": "{{ header:content-type }}"
-             },
-             "authorizationContext": ["nginx:ditto"],
-             "topics": [
-               "_/_/things/twin/events?filter=and(in(topic:action,'created'),eq(resource:path,'/'))"
-             ],
-             "payloadMapping": [
-               "mappingforShell"
-             ]
-           }
-         ]
-       }
-     }
-   }' http://192.168.50.142:8080/devops/piggyback/connectivity
+    "targetActorSelection": "/system/sharding/connection",
+    "headers": {
+      "aggregate": false
+    },
+    "piggybackCommand": {
+      "type": "connectivity.commands:createConnection",
+      "connection": {
+        "id": "basyxregistry-http-connection",
+        "connectionType": "http-push",
+        "connectionStatus": "open",
+        "uri": "htpp://<System IP:PORT.>",
+        "failoverEnabled": true,
+        "mappingDefinitions": {
+          "mappingforShell": {
+            "mappingEngine": "JavaScript",
+            "options": {
+              "outgoingScript": "function mapFromDittoProtocolMsg(namespace, name, group, channel, criterion, action, path, dittoHeaders, value, status, extra) {\n  let headers = dittoHeaders;\n  let textPayload = JSON.stringify({\n    endpoints: [\n        {\n            address: '"'<basyx-server-instance-url>:4001/aasServer/shells/'"' + namespace + '"'/aas'"',\n            type: '"'http'"'\n        }\n    ],\n    modelType: {\n        name: '"'AssetAdministrationShellDescriptor'"'\n    },\n    identification: {\n        idType: '"'Custom'"',\n        id: namespace\n},\n    idShort: namespace,\n      asset: {\n          identification: {\n              idType: '"'Custom'"',\n              id: namespace + '"'-asset'"'\n          },\n          idShort: namespace + '"'-asset'"',\n          kind: '"'Instance'"',\n          dataSpecification: [],\n          modelType: {\n              name: '"'Asset'"'\n          },\n          embeddedDataSpecifications: []\n      },\n      submodels: []\n  });\n  let bytePayload = null;\n  let contentType = '"'application/json'"';\n  return Ditto.buildExternalMsg(headers, textPayload, bytePayload, contentType);}"
+            }
+          }
+        },
+        "sources": [],
+        "targets": [
+          {
+            "address": "PUT:/registry/api/v1/registry/{{ thing:namespace }}",
+            "headerMapping": {
+              "content-type": "{{ header:content-type }}"
+            },
+            "authorizationContext": ["nginx:ditto"],
+            "topics": [
+              "_/_/things/twin/events?filter=and(in(topic:action,'"'created'"'),eq(resource:path,'"'/'"'))"
+            ],
+            "payloadMapping": [
+              "mappingforShell"
+            ]
+          }
+        ]
+      }
+    }
+  }' htpp://<System IP:PORT.>/devops/piggyback/connectivity
    ```
 
 4. **Access AASGui:**
