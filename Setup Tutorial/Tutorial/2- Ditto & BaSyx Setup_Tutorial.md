@@ -163,8 +163,7 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
           }
         ]
       }
-    }
-  }' htpp://<System IP:PORT.>/devops/piggyback/connectivity
+    }}' htpp://<System IP:PORT.>/devops/piggyback/connectivity
    ```
 
 4. **Access AASGui:**
