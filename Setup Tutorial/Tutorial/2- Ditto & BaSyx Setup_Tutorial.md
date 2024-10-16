@@ -118,7 +118,7 @@ Certainly! Here's a cleaner and more organized version of the setup guide:
         ]
       }
     }
-  }' htpp://<System IP:PORT.>/devops/piggyback/connectivity
+   }' htpp://<System IP:PORT.>/devops/piggyback/connectivity
    ```
 
    **Note:** Replace `<System_IP>` and `<PORT>` with your actual IP address and port number (e.g., `192.168.0.105`, `8082`).
