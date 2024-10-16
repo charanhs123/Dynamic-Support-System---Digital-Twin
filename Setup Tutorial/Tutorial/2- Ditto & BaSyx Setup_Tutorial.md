@@ -235,9 +235,7 @@ After establishing the connection between BaSyx and Ditto, you can create and mo
      "properties": {
        "value": null
      }
-   }' <ditto-instance-url>/api/2/things/$
-
-DEVICE_ID/features/$FEATURE_ID
+   }' <ditto-instance-url>/api/2/things/$DEVICE_ID/features/$FEATURE_ID
    ```
 
 5. **Verify Feature:**
