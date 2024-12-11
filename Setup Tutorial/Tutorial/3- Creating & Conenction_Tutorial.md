@@ -255,7 +255,7 @@ curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor.pa:sensor' \
 ```
 ### 3. **Delete Things**
    ```bash
-   curl -X DELETE 'http://<your-ip>:8080/api/2/things/sensor2.test:sens' -u 'ditto:ditto' 
+   curl -X DELETE 'http://<your-ip>:8080/api/2/things/<thing_id>' -u 'ditto:ditto' 
    ```
 ---
 
