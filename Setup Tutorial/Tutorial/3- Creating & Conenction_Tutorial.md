@@ -253,10 +253,13 @@ curl -X PUT 'http://<your-ip>:8080/api/2/things/sensor.pa:sensor' \
          }
      }'
 ```
-
+### 3. **Delete Things**
+   ```bash
+   curl -X DELETE 'http://<your-ip>:8080/api/2/things/sensor2.test:sens' -u 'ditto:ditto' 
+   ```
 ---
 
-### 3. **Create Connections**
+### 4. **Create Connections**
 
 **Feedback Sensors:**
 ```bash
